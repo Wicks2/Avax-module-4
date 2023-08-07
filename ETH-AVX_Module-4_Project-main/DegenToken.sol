@@ -1,89 +1,61 @@
-/*
-Challenge
-Your task is to create a ERC20 token and deploy it on the Avalanche network for Degen Gaming. The smart contract should have the following functionality:
+# Degen Gaming ERC20 Token
 
-1. Minting new tokens: The platform should be able to create new tokens and distribute them to players as rewards. Only the owner can mint tokens.
-2. Transferring tokens: Players should be able to transfer their tokens to others.
-3. Redeeming tokens: Players should be able to redeem their tokens for items in the in-game store.
-4. Checking token balance: Players should be able to check their token balance at any time.
-5. Burning tokens: Anyone should be able to burn tokens, that they own, that are no longer needed.
-*/
+This is a smart contract for an ERC20 token named "Degen" (symbol: DGN), designed for Degen Gaming. The token contract includes functionalities for minting, transferring, redeeming, checking balances, and burning tokens.
 
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+## Functionality
 
-// importing to use & create ERC20 token 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol"; 
+1. **Minting New Tokens**
+    - The owner of the contract can mint new tokens using the `mint` function.
+    - The `_mint` function from the ERC20 standard is used to create new tokens and distribute them to specific addresses.
+    - Only the owner can call this function to create new tokens.
 
-// importing because some actions can only peformed by the owner of the contract
-import "@openzeppelin/contracts/access/Ownable.sol";     
+2. **Transferring Tokens**
+    - Players can transfer their tokens to other addresses using the `transferTokens` function.
+    - The `_transfer` function from the ERC20 standard is used to facilitate the transfer of tokens between two addresses.
 
-contract DegenToken is ERC20("Degen", "DGN"), Ownable {
-    string public MyTokens = "" ; //This will store the info of the redeemed tokens by users.
+3. **Redeeming Tokens**
+    - Players can redeem their tokens for in-game items from the store using the `redeemTokens` function.
+    - Players can choose an item (1 to 5) from the store and send a payment along with the function call.
+    - The function checks the user's balance and deducts the appropriate amount of tokens, transferring them to the contract owner's address.
+    - The name of the redeemed item is concatenated to the `MyTokens` variable for tracking purposes.
 
+4. **Checking Token Balance**
+    - Players can check their token balance using any Ethereum wallet or blockchain explorer.
+    - The ERC20 standard provides a `balanceOf` function for this purpose.
 
-    // This function will use the inbuilt _mint function of  ERC20 Token
-    // Only owner can call this function, other users can't call this function 
-    // onlyOwner is just like a modifier which is inbuilt in ERC20 token
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
-    }
+5. **Burning Tokens**
+    - Anyone can burn their tokens using the `burnTokens` function.
+    - The `_burn` function from the ERC20 standard is used to destroy tokens from the caller's address.
 
+6. **In-Game Store**
+    - The `store` function provides a string representation of the items available in the in-game store along with their prices in tokens.
 
-    // This function will use the inbuilt _transfer function of ERC20 Token
-    // _transfer will take 3 parameters 
-    // 1. Address of the user   2. address of the reciever   3. Amount/tokens to transfer
-    function transferTokens(address to, uint256 amount) external {
-        _transfer(_msgSender(), to, amount);
-    }
+## Usage
 
+1. Deploy the Contract:
+    - Deploy the `DegenToken` contract on the Avalanche network.
 
-    // This function will use the inbuilt _burn function of ERC20 Token
-    // _burn will take 2 parameters 
-    // 1. Address of the user   2.  Amount/tokens to transfer
-    function burnTokens(uint256 amount) external {
-        _burn(_msgSender(), amount);
-    }
+2. Minting Tokens:
+    - Only the owner can mint new tokens using the `mint` function.
+    - Provide the recipient's address and the amount of tokens to mint.
 
-    // This will show the tokens in game store
-    function store() public pure returns (string memory) {
-        return
-            "1. Naruto Headband = 500 \n 2. Madara Susano = 1200 \n 3. Fireball Punch = 300 \n 4. Itachi Sharingaan = 800  \n 5. Kurama 9 tailed Beast = 1000";
-    }
+3. Transferring Tokens:
+    - Players can transfer tokens to others using the `transferTokens` function.
+    - Provide the recipient's address and the amount of tokens to transfer.
 
+4. Redeeming Tokens:
+    - Players can redeem tokens for in-game items using the `redeemTokens` function.
+    - Provide the chosen item (1 to 5) as an argument and send the appropriate amount of Ether along with the function call.
 
-    // This is a payable function which is use to reedem the token of the game store
-    function redeemTokens(uint256 choice) external payable {
-        require(choice >= 1 && choice <= 5, "Invalid selection");  // check the codition
+5. Burning Tokens:
+    - Anyone can burn their tokens using the `burnTokens` function.
+    - Provide the amount of tokens to burn.
 
-        uint256 value;  // To store the price of the token 
-        string memory tokenName; // To store the name of the token
+6. Checking Balances:
+    - Use any Ethereum wallet or blockchain explorer to check token balances associated with different addresses.
 
-        // Value and tokenName will be set according to the users choice
-        if (choice == 1) {
-            value = 500;
-            tokenName = "Naruto Headband";
-        } else if (choice == 2) {
-            value = 1200;
-            tokenName = "Madara Susano";
-        } else if (choice == 3) {
-            value = 300;
-            tokenName = "Fireball Punch";
-        } else if (choice == 4) {
-            value = 800;
-            tokenName = "Itachi Sharingaan";
-        } else {
-            value = 1000;
-            tokenName = "Kurama 9 tailed Beast";
-        }
+## Disclaimer
 
-
-        // After getting the value and tokenName , we will check this condition
-        // If the condition meet then we will proceed otherwise revert the transaction
-        require(balanceOf(_msgSender()) >= value, "Insufficient balance");
-        _transfer(_msgSender(), owner(), value);
-
-        // This will concatenate the name of the token to MYTokens, which we have made earlier at the top of this contract
-        MyTokens = string.concat(MyTokens,tokenName,", ");
-    }
-}
+- This smart contract is provided for educational purposes only and might need further security audits and improvements before real-world deployment.
+- Be cautious while interacting with smart contracts, especially on live networks, as mistakes might result in the loss of funds.
+- Consult the documentation of the OpenZeppelin library for more details on ERC20 token implementation: [OpenZeppelin ERC20](https://docs.openzeppelin.com/contracts/4.x/erc20).
